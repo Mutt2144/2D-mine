@@ -12,7 +12,7 @@ let images = loadImages();
 
 function render() {
     if (active_scene == menu_scene.SCENE_ID) {
-        menu_scene.draw_objects();
+        menu_scene.loop();
     }
 }
 

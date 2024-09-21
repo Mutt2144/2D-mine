@@ -2,7 +2,11 @@ class VEC2 {
     x;
     y;
 
-    constructor(x, y) {
+    constructor(x = Number, y = Number) {
+        if ((typeof(x) != "number" || typeof(y) != "number")) {
+                show_message("ERROR", "vector.js", "class VEC2", "'x' and 'y' must be of type 'number'");
+                return -1;
+            }
         this.x = x;
         this.y = y;
     }
