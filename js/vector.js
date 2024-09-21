@@ -1,3 +1,5 @@
+'use strict'
+
 class VEC2 {
     x;
     y;

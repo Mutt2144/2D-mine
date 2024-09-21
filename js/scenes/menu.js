@@ -24,6 +24,8 @@
 *   ------------------------------------
 */
 
+'use strict'
+
 const add_object_flags = {
     is_children: false,
     father_name: "",
@@ -39,6 +41,8 @@ class MENU_SCENE extends SCENE_MODEL {
     DISPLAY_ID       = this.MAIN_MENU_ID;
 
     draw_objects() {
+        this.clear_display(0, 0, this.cnv.width, this.cnv.height);
+
         switch (this.DISPLAY_ID) {
             case this.MAIN_MENU_ID:
 
@@ -60,6 +64,34 @@ class MENU_SCENE extends SCENE_MODEL {
 
             case this.WORLDS_MENU_ID:
                 const worlds_menu = this.OBJECTS["WORLDS_MENU"];
+                
+                for (const obj_id in worlds_menu) {
+                    const obj = worlds_menu[obj_id];
+                    if (obj.type != "WORLD_BTN") continue;
+
+                    this.ctx.fillStyle = "#fff";
+                    this.ctx.strokeStyle = "white";
+                    this.ctx.lineWidth = 1;
+                    
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(obj.position.x,               obj.position.y);
+                    this.ctx.lineTo(obj.position.x + obj.scale.x, obj.position.y);
+                    this.ctx.lineTo(obj.position.x + obj.scale.x, obj.position.y + obj.scale.y);
+                    this.ctx.lineTo(obj.position.x,               obj.position.y + obj.scale.y);
+                    this.ctx.lineTo(obj.position.x,               obj.position.y);
+                    this.ctx.stroke();
+
+                    this.ctx.fillText(
+                        obj.name, 
+                        obj.position.x + obj.scale.x / 2.5,
+                        obj.position.y + obj.scale.y / 1.5
+                    );
+                }
+
+                break;
+
+            default:
+                console.log("nao definido", this.DISPLAY_ID);
         }
         
     }
@@ -85,7 +117,7 @@ class MENU_SCENE extends SCENE_MODEL {
                 
                 break;
             case "BUTTON":
-                obj = new BUTTON(properties.position, properties.scale, properties.sprite, properties.text);
+                obj = new BUTTON(properties.position, properties.scale, properties.sprite, properties.text, properties.func);
                 obj.type = "BUTTON";
 
                 for (const propertyID in properties) {
@@ -104,20 +136,30 @@ class MENU_SCENE extends SCENE_MODEL {
                 }
 
                 break;
+
+            case "WORLD_BTN":
+                obj = new WORLD_BUTTON(properties.position, properties.scale, properties.NAME);
+                obj.type = "WORLD_BTN";
+
+                for (const propertyID in properties) {
+                    const property = properties[propertyID];
+                    obj[propertyID] = property;
+                }
         }
 
         if (flags.is_children) this.OBJECTS[flags.father_name][id] = obj;
         else this.OBJECTS[id] = obj;
-        console.log(flags);
     }
 
+
+    // mouse manager
     update_mouse_style() {
         const mouseX = mouse.position.x;
         const mouseY = mouse.position.y;
 
         for (const objectID in this.OBJECTS) {
             const object = this.OBJECTS[objectID];
-            if (object.type != "BUTTON") continue // I don't know why, but it's only work like this
+            if (object.type != "BUTTON") continue // I don't know why, but this bullshit only works like that
 
             if ((mouseX > object.position.x && mouseX < object.position.x + object.scale.x) &&
                 (mouseY > object.position.y && mouseY < object.position.y + object.scale.y)) {
@@ -129,13 +171,49 @@ class MENU_SCENE extends SCENE_MODEL {
         }
     }
 
+    check_mouse_click(e = new MouseEvent, type = "", parent = new MENU_SCENE) {
+        if (type == "up") return;
+
+        const mouse = { x: e.offsetX, y: e.offsetY };
+
+        if (parent.DISPLAY_ID == parent.MAIN_MENU_ID) {
+            for (const OBJ_ID in parent.OBJECTS) {
+                const OBJ = parent.OBJECTS[OBJ_ID];
+                if (OBJ.type != "BUTTON") continue // I don't know why, but this bullshit only works like that
+    
+                if ((mouse.x > OBJ.position.x && mouse.x < OBJ.position.x + OBJ.scale.x) &&
+                    (mouse.y > OBJ.position.y && mouse.y < OBJ.position.y + OBJ.scale.y)) {
+                        OBJ.func(parent);
+                    
+                }
+            }
+        } else if (this.DISPLAY_ID == this.WORLDS_MENU_ID) {
+        }
+
+        
+        
+    }
+
     loop() {
         this.update_mouse_style();
         this.draw_objects();
     }
 
-    constructor(SCENE_ID, SCENE_NAME, CAM_CAMERA) {
+
+    // button functions
+    Play_BTN_HANDLE(parent = new MENU_SCENE) {
+        console.log("loading worlds");
+        
+        parent.DISPLAY_ID = parent.WORLDS_MENU_ID;
+    }
+
+
+    constructor(SCENE_ID = 0, SCENE_NAME = "", CAM_CAMERA = new CAMERA) {
         super(SCENE_ID, SCENE_NAME, CAM_CAMERA);
+
+        // listeners
+        add_mouse_listener(this.check_mouse_click, this);
+
 
         // add the title text
         const titleText = { position: new VEC2(300, 100), scale: new VEC2(100, 20), color: new C_RGB(), text: "TopCraft" };
@@ -144,8 +222,7 @@ class MENU_SCENE extends SCENE_MODEL {
         // add the start button
         const buttonIMG = new Image();
         buttonIMG.src = "assets/button.png";
-        console.log(buttonIMG)
-        const startButton = { position: new VEC2(270, 150), scale: new VEC2(100, 20), sprite: buttonIMG, text: "Play" };
+        const startButton = { position: new VEC2(270, 150), scale: new VEC2(100, 20), sprite: buttonIMG, text: "Play", func: this.Play_BTN_HANDLE };
 
         this.add_object(startButton, "BUTTON", "Play_BTN");
 
@@ -158,5 +235,20 @@ class MENU_SCENE extends SCENE_MODEL {
 
         const worlds_main_title = { position: new VEC2(300, 50), scale: new VEC2(100, 20), color: new C_RGB(), text: "Worlds" };
         this.add_object(worlds_main_title, "OTHER", "WORLDS_MAIN_TITLE", { is_children: true, father_name: "WORLDS_MENU" });
+
+        // config the worlds screen
+        const worlds = JSON.parse(localStorage.WORLDS_DATA);
+
+        let x = 100;
+        let y = 200;
+        let w = 125;
+        let h = 50;
+
+        for (const world_id in worlds) {
+            const world = worlds[world_id];
+            
+            const new_world_button = new WORLD_BUTTON(new VEC2(x, y), new VEC2(w, h), world.NAME);
+            this.add_object(new_world_button, "WORLD_BTN", null, { is_children: true, father_name: "WORLDS_MENU" });
+        }
     }
 }

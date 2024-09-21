@@ -1,3 +1,5 @@
+'use strict'
+
 function show_message(type, file, func, message) {
     switch (type) {
         case "ERROR":

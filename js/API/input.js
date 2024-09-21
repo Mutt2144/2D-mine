@@ -1,11 +1,15 @@
+'use strict'
+
 const mouse = {
     position: { x: 0, y: 0 }
 };
 
 const keys = {};
-const keyboard_listeners    = [];   // for continuos click
-const keypress_listeners    = [];   // for single click
-const mouse_click_listeners = [];   // for eject click
+const keyboard_listeners            = [];   // for continuos click
+const keypress_listeners            = [];   // for single click
+
+const mouse_click_listeners         = [];   // for eject click
+const mouse_click_listeners_parent  = [];
 
 // mouse
 window.addEventListener("mousemove", (e) => {
@@ -16,14 +20,14 @@ window.addEventListener("mousemove", (e) => {
 window.addEventListener("mousedown", (e) => {
     for (let i = 0; i < mouse_click_listeners.length; i++) {
         const func = mouse_click_listeners[i];
-        func(e, "down");
+        func(e, "down", mouse_click_listeners_parent[i]);
     }
 });
 
 window.addEventListener("mouseup", (e) => {
     for (let i = 0; i < mouse_click_listeners.length; i++) {
         const func = mouse_click_listeners[i];
-        func(e, "up");
+        func(e, "up", mouse_click_listeners_parent[i]);
     }
 });
 
@@ -53,8 +57,9 @@ window.addEventListener("keypress", (e) => {
 });
 
 // listener manager
-function add_mouse_listener(func) {
-    keyboard_listeners.push(func);
+function add_mouse_listener(func, parent) {
+    mouse_click_listeners.push(func);
+    mouse_click_listeners_parent.push(parent);
 }
 
 function add_keyboard_listener(func) {

@@ -1,3 +1,5 @@
+'use strict'
+
 class OBJECT_2D {
     position;
     scale;
@@ -54,7 +56,9 @@ class TEXT extends UI_OBJECT {
 }
 
 class BUTTON extends UI_OBJECT {
-    constructor(VEC2_position, VEC2_scale, SPRITE_sprite, text) {
+    func;
+
+    constructor(VEC2_position = new VEC2, VEC2_scale = new VEC2, SPRITE_sprite = new SPRITE, text = "", func = () => void 1) {
         super(VEC2_position, VEC2_scale);
         
         if (!SPRITE_sprite instanceof SPRITE) {
@@ -69,7 +73,10 @@ class BUTTON extends UI_OBJECT {
 }
 
 class WORLD_BUTTON extends UI_OBJECT {
-    constructor(VEC2_position, VEC2_scale) {
+    name;
+
+    constructor(VEC2_position = new VEC2, VEC2_scale = new VEC2, name = "") {
         super(VEC2_position, VEC2_scale);
+        this.name = name;
     }
 }

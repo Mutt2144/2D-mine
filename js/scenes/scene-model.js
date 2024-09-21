@@ -1,3 +1,5 @@
+'use strict'
+
 const file_name = "scene-model.js";
 
 class SCENE_MODEL {

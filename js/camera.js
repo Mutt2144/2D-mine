@@ -1,3 +1,5 @@
+'use strict'
+
 class CAMERA {
     transform = {
         postion: { x: 0, y: 0 },

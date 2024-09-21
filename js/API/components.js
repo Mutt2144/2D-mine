@@ -1,3 +1,5 @@
+'use strict'
+
 class SPRITE {
     img = new Image();
 

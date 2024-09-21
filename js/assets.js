@@ -1,3 +1,5 @@
+'use strict'
+
 function loadImages() {
     const img = {
         grass: new Image()
