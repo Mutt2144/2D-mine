@@ -227,6 +227,14 @@ class MENU_SCENE extends SCENE_MODEL {
         this.add_object(startButton, "BUTTON", "Play_BTN");
 
 
+        // create the button to add a new world
+        // TODO:
+        const world_btnIMG = new Image();
+        world_btnIMG.src = "assets/create-world-button.png";
+        const world_button = { position: new VEC2() }
+
+        const create_world_btn = new BUTTON(new VEC2(50, 50), new VEC2(50, 50), )
+
         // add the worlds menu, with all properties
         
         const worlds_menu = {};
@@ -239,16 +247,15 @@ class MENU_SCENE extends SCENE_MODEL {
         // config the worlds screen
         const worlds = JSON.parse(localStorage.WORLDS_DATA);
 
-        let x = 100;
-        let y = 200;
-        let w = 125;
-        let h = 50;
+        const worlds_btn_pos = { x: 100, y: 200, w: 125, h: 50 };
 
         for (const world_id in worlds) {
             const world = worlds[world_id];
             
-            const new_world_button = new WORLD_BUTTON(new VEC2(x, y), new VEC2(w, h), world.NAME);
+            const new_world_button = new WORLD_BUTTON(new VEC2(worlds_btn_pos.x, worlds_btn_pos.y), new VEC2(worlds_btn_pos.w, worlds_btn_pos.h), world.NAME);
             this.add_object(new_world_button, "WORLD_BTN", null, { is_children: true, father_name: "WORLDS_MENU" });
+
+            worlds_btn_pos.x += 70;
         }
     }
 }
