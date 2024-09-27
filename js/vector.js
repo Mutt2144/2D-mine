@@ -1,8 +1,8 @@
 'use strict'
 
 class VEC2 {
-    x;
-    y;
+    x = 0;
+    y = 0;
 
     constructor(x = Number, y = Number) {
         if ((typeof(x) != "number" || typeof(y) != "number")) {

@@ -40,6 +40,34 @@ class MENU_SCENE extends SCENE_MODEL {
     SETTINGS_MENU_ID = 0x70;
     DISPLAY_ID       = this.MAIN_MENU_ID;
 
+    draw_world_button(color = "#000", line_color = "#fff", line_width = 1, obj = new WORLD_BUTTON) {
+        this.ctx.fillStyle = color;
+        this.ctx.strokeStyle = line_color;
+        this.ctx.lineWidth = line_width;
+                    
+        this.ctx.beginPath();
+        this.ctx.moveTo(obj.position.x,               obj.position.y);
+        this.ctx.lineTo(obj.position.x + obj.scale.x, obj.position.y);
+        this.ctx.lineTo(obj.position.x + obj.scale.x, obj.position.y + obj.scale.y);
+        this.ctx.lineTo(obj.position.x,               obj.position.y + obj.scale.y);
+        this.ctx.lineTo(obj.position.x,               obj.position.y);
+        this.ctx.stroke();
+
+        this.ctx.fillText(
+            obj.name, 
+            obj.position.x + obj.scale.x / 2.5,
+            obj.position.y + obj.scale.y / 1.5
+        );
+    }
+
+    draw_button(color = "#000", obj = new BUTTON) {
+        this.ctx.fillStyle = "#fff";
+        this.ctx.drawImage(obj.sprite, obj.position.x, obj.position.y);
+        this.ctx.fillText(obj.text,
+            obj.position.x + obj.scale.x / 2.5,
+            obj.position.y + obj.scale.y / 1.5);
+    }
+
     draw_objects() {
         this.clear_display(0, 0, this.cnv.width, this.cnv.height);
 
@@ -48,11 +76,7 @@ class MENU_SCENE extends SCENE_MODEL {
 
                 const play_btn = this.OBJECTS["Play_BTN"];
 
-                this.ctx.fillStyle = "#fff";
-                this.ctx.drawImage(play_btn.sprite, play_btn.position.x, play_btn.position.y);
-                this.ctx.fillText(play_btn.text,
-                    play_btn.position.x + play_btn.scale.x / 2.5,
-                    play_btn.position.y + play_btn.scale.y / 1.5);
+                this.draw_button("#fff", play_btn);
                 
                 
                 const Start_TEXT = this.OBJECTS["Start_TEXT"];
@@ -64,28 +88,17 @@ class MENU_SCENE extends SCENE_MODEL {
 
             case this.WORLDS_MENU_ID:
                 const worlds_menu = this.OBJECTS["WORLDS_MENU"];
+
+                const createWorld_BTN = worlds_menu["CREATE_WORLD"];
                 
+                this.draw_button("#fff", createWorld_BTN);
+                
+
                 for (const obj_id in worlds_menu) {
                     const obj = worlds_menu[obj_id];
                     if (obj.type != "WORLD_BTN") continue;
 
-                    this.ctx.fillStyle = "#fff";
-                    this.ctx.strokeStyle = "white";
-                    this.ctx.lineWidth = 1;
-                    
-                    this.ctx.beginPath();
-                    this.ctx.moveTo(obj.position.x,               obj.position.y);
-                    this.ctx.lineTo(obj.position.x + obj.scale.x, obj.position.y);
-                    this.ctx.lineTo(obj.position.x + obj.scale.x, obj.position.y + obj.scale.y);
-                    this.ctx.lineTo(obj.position.x,               obj.position.y + obj.scale.y);
-                    this.ctx.lineTo(obj.position.x,               obj.position.y);
-                    this.ctx.stroke();
-
-                    this.ctx.fillText(
-                        obj.name, 
-                        obj.position.x + obj.scale.x / 2.5,
-                        obj.position.y + obj.scale.y / 1.5
-                    );
+                    this.draw_world_button("#fff", "#fff", 1, obj);
                 }
 
                 break;
@@ -96,7 +109,7 @@ class MENU_SCENE extends SCENE_MODEL {
         
     }
 
-    add_object(properties = Object, prefab = "OTHER" || "2D_OBJ" || "BUTTON", id = "", flags = add_object_flags) {
+    add_object(properties = Object, prefab = "OTHER" || "2D_OBJ" || "BUTTON" || "TEXT", id = "", flags = add_object_flags) {
         if (id == null || id == "") id = Math.floor(Math.random() * 9999999);
 
         let obj;
@@ -157,18 +170,24 @@ class MENU_SCENE extends SCENE_MODEL {
         const mouseX = mouse.position.x;
         const mouseY = mouse.position.y;
 
-        for (const objectID in this.OBJECTS) {
-            const object = this.OBJECTS[objectID];
-            if (object.type != "BUTTON") continue // I don't know why, but this bullshit only works like that
-
-            if ((mouseX > object.position.x && mouseX < object.position.x + object.scale.x) &&
-                (mouseY > object.position.y && mouseY < object.position.y + object.scale.y)) {
-                    document.body.style.cursor = "pointer";
-                } else {
-                    document.body.style.cursor = "default";
+        /*switch (this.DISPLAY_ID) {
+            case this.MAIN_MENU_ID:
+                
+                for (const objectID in this.OBJECTS) {
+                    const object = this.OBJECTS[objectID];
+                    if (object.type != "BUTTON") continue // I don't know why, but this bullshit only works like that
+        
+                    if ((mouseX > object.position.x && mouseX < object.position.x + object.scale.x) &&
+                        (mouseY > object.position.y && mouseY < object.position.y + object.scale.y)) {
+                            document.body.style.cursor = "de";
+                        } else {
+                            document.body.style.cursor = "default";
+                        }
+        
                 }
 
-        }
+                break;
+        }*/
     }
 
     check_mouse_click(e = new MouseEvent, type = "", parent = new MENU_SCENE) {
@@ -187,7 +206,15 @@ class MENU_SCENE extends SCENE_MODEL {
                     
                 }
             }
-        } else if (this.DISPLAY_ID == this.WORLDS_MENU_ID) {
+        } else if (parent.DISPLAY_ID == parent.WORLDS_MENU_ID) {
+            const worlds_menu = parent.OBJECTS.WORLDS_MENU;
+
+            const create_world = worlds_menu.CREATE_WORLD;
+            if ((mouse.x > create_world.position.x && mouse.x < create_world.position.x + create_world.scale.x) &&
+                (mouse.y > create_world.position.y && mouse.y < create_world.position.y + create_world.scale.y)) {
+                    create_world.func(parent);
+                
+            }
         }
 
         
@@ -207,6 +234,17 @@ class MENU_SCENE extends SCENE_MODEL {
         parent.DISPLAY_ID = parent.WORLDS_MENU_ID;
     }
 
+    CreateWorld_BTN_HANDLE(parent = new MENU_SCENE) {
+        const world_name       = prompt("Enter the world name");
+        const world_seed       = Number(prompt("Enter the world seed (empty for a random seed)"));
+        const world_size       = prompt("Select the world size [S] small [M] medium [G] big").toUpperCase();
+        const world_difficulty = prompt("Select the difficulty [E] easy [N] normal [H] hard").toUpperCase();
+
+        world_seed = world_seed == "" ? Math.random() * 9999999 : world_seed;
+
+        game_data.create_world(world_size, world_name, world_difficulty, world_seed);
+    }
+
 
     constructor(SCENE_ID = 0, SCENE_NAME = "", CAM_CAMERA = new CAMERA) {
         super(SCENE_ID, SCENE_NAME, CAM_CAMERA);
@@ -221,25 +259,26 @@ class MENU_SCENE extends SCENE_MODEL {
 
         // add the start button
         const buttonIMG = new Image();
-        buttonIMG.src = "assets/button.png";
+        buttonIMG.src = "assets/img/button.png";
         const startButton = { position: new VEC2(270, 150), scale: new VEC2(100, 20), sprite: buttonIMG, text: "Play", func: this.Play_BTN_HANDLE };
 
         this.add_object(startButton, "BUTTON", "Play_BTN");
 
 
-        // create the button to add a new world
-        // TODO:
-        const world_btnIMG = new Image();
-        world_btnIMG.src = "assets/create-world-button.png";
-        const world_button = { position: new VEC2() }
-
-        const create_world_btn = new BUTTON(new VEC2(50, 50), new VEC2(50, 50), )
-
+        
         // add the worlds menu, with all properties
         
         const worlds_menu = {};
         this.add_object(worlds_menu, "OTHER", "WORLDS_MENU");
 
+        // create the button to add a new world
+        // TODO:
+        const world_btnIMG = new Image();
+        world_btnIMG.src = "assets/img/create-world-button.png";
+
+        const create_world_btn = new BUTTON(new VEC2(50, 50), new VEC2(50, 50), world_btnIMG, "+", this.CreateWorld_BTN_HANDLE );
+        this.add_object(create_world_btn, "OTHER", "CREATE_WORLD", { is_children: true, father_name: "WORLDS_MENU" });
+        
 
         const worlds_main_title = { position: new VEC2(300, 50), scale: new VEC2(100, 20), color: new C_RGB(), text: "Worlds" };
         this.add_object(worlds_main_title, "OTHER", "WORLDS_MAIN_TITLE", { is_children: true, father_name: "WORLDS_MENU" });

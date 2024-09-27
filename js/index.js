@@ -4,7 +4,7 @@ const cnv = document.querySelector("canvas");
 const ctx = cnv.getContext("2d");
 let active_scene;
 
-let game_data;
+let game_data = new GAME_DATA;
 
 const menu_cam = new CAMERA(new VEC2(0, 0), new VEC2(cnv.width, cnv.height));
 

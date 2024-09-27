@@ -69,6 +69,7 @@ class BUTTON extends UI_OBJECT {
         
         this.sprite   = SPRITE_sprite;
         this.text     = text;
+        this.func     = func;
     }
 }
 

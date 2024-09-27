@@ -5,7 +5,7 @@ function loadImages() {
         grass: new Image()
     };
 
-    img.grass.src = "./assets/grass.png";
+    img.grass.src = "./assets/img/grass.png";
 
     return img;
 }

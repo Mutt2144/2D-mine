@@ -22,7 +22,19 @@ class GAME_DATA {
         }
     }
 
-    create_world(size = "", name = "", difficulty = "") {
+    noise_map(world = new Array(0)) {
+
+        // height map
+        for (let i = 0; i < world.length; i++) {
+            for (let j = 0; j < world[0].length; j++) {
+                world[i][j] = -5;
+            }
+        }
+
+        // TODO:
+    }
+
+    create_world(size = "", name = "", difficulty = "", seed = 0) {
         const WORLDS_DATA = JSON.parse(localStorage.getItem("WORLDS_DATA"));
 
         if (WORLDS_DATA[name]) {
@@ -35,9 +47,11 @@ class GAME_DATA {
         let world;
         let map;
 
-        if (size == "small")        map = new Array(50).fill(Array(50).fill(0, 0, 50), 0, 50);
-        else if (size == "medium")  map = new Array(150).fill(Array(150).fill(0, 0, 150), 0, 150);
-        else if (size == "big")     map = new Array(300).fill(Array(300).fill(0, 0, 300), 0, 300);
+        if (size == "S")       map = new Array(50).fill(Array(50).fill(0, 0, 50), 0, 50);
+        else if (size == "M")  map = new Array(150).fill(Array(150).fill(0, 0, 150), 0, 150);
+        else if (size == "B")  map = new Array(300).fill(Array(300).fill(0, 0, 300), 0, 300);
+
+
 
         world = new WORLD_MODEL(map, name, difficulty);
 
